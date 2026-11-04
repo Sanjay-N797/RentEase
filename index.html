@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RentEase – Rental Vehicle Management System</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    .banner-ribbon {
+      background: linear-gradient(90deg, #5530a3, #14b8a6);
+      color: #fff;
+      padding: 0.6rem 1rem;
+      font-size: 0.88rem;
+      text-align: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .banner-ribbon a {
+      color: #fff;
+      font-weight: 700;
+      text-decoration: underline;
+    }
+    .banner-badge {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 0.15rem 0.5rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    .hero {
+      background: linear-gradient(135deg, rgba(11,31,58,0.95), rgba(20,48,90,0.9)), url('https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=1600&q=80') center/cover;
+      color: #fff;
+      padding: 3rem 1.5rem 3.5rem;
+      border-radius: var(--radius);
+      margin-bottom: 2rem;
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+    .hero h1 {
+      color: #fff;
+      font-size: 2.3rem;
+      margin-bottom: 0.8rem;
+    }
+    .hero p {
+      max-width: 680px;
+      margin: 0 auto 1.5rem;
+      font-size: 1.1rem;
+      color: #dbe4f5;
+    }
+    .hero-badges {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .hero-badge-item {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 0.4rem 0.9rem;
+      border-radius: 99px;
+      font-size: 0.85rem;
+      color: #fff;
+    }
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(11, 31, 58, 0.7);
+      z-index: 100;
+      backdrop-filter: blur(4px);
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .modal-backdrop.open {
+      display: flex;
+    }
+    .modal {
+      background: #fff;
+      border-radius: var(--radius);
+      width: 100%;
+      max-width: 580px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 1.8rem;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.25);
+      position: relative;
+    }
+    .modal-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--muted);
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+    }
+    .modal-close:hover {
+      background: var(--bg);
+      color: var(--navy);
+    }
+    .summary-box {
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 1rem;
+      margin: 1rem 0;
+    }
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.4rem;
+      font-size: 0.9rem;
+    }
+    .summary-row.total {
+      font-size: 1.1rem;
+      font-weight: 700;
+      border-top: 1px solid var(--line);
+      padding-top: 0.5rem;
+      margin-top: 0.5rem;
+      color: var(--navy);
+    }
+    .tab-row {
+      display: flex;
+      gap: 0.5rem;
+      border-bottom: 2px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    .tab-btn {
+      background: none;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      font-weight: 600;
+      font-family: inherit;
+      font-size: 0.95rem;
+      cursor: pointer;
+      color: var(--muted);
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+    }
+    .tab-btn.active {
+      color: var(--purple);
+      border-bottom-color: var(--purple);
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .vcard {
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .vcard:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(11,31,58,0.12);
+    }
+    .ph-icon {
+      font-size: 3.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      background: linear-gradient(135deg, #eef2ff, #f3f4f6);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Ribbon for GitHub Pages -->
+  <div class="banner-ribbon">
+    <span class="banner-badge">GitHub Pages Static Preview</span>
+    <span>Explore the frontend demo. The full dynamic backend (PHP 8 + MySQL PDO) is available on the</span>
+    <a href="https://github.com/Sanjay-N797/RentEase" target="_blank" rel="noopener">main branch</a>
+  </div>
+
+  <!-- Header / Navigation -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="#vehicles" class="brand">
+        <span class="brand-mark">RE</span>
+        <span>Rent<b>Ease</b></span>
+        <small>Demo</small>
+      </a>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+      </button>
+      <nav class="nav" id="mainNav">
+        <a href="#vehicles" class="active">Explore Fleet</a>
+        <a href="#stats">Fleet Stats</a>
+        <a href="#features">Features</a>
+        <button type="button" class="nav-btn" onclick="openLoginModal('customer')">Customer Login</button>
+        <button type="button" class="nav-btn" style="background:rgba(108,63,197,.3);color:#dbe4f5;" onclick="openLoginModal('admin')">Admin Login</button>
+        <a href="https://github.com/Sanjay-N797/RentEase" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:0.3rem;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          GitHub
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Hero Section -->
+    <section class="hero">
+      <h1>RentEase Vehicle Management</h1>
+      <p>Seamlessly discover, book, and manage rental cars, bikes, and vans. Designed with clean modular UI, robust business rules, and real-time fleet availability.</p>
+      <div class="hero-badges">
+        <span class="hero-badge-item">⚡ Instant Booking Engine</span>
+        <span class="hero-badge-item">🛡️ Automated Eligibility &amp; Age Checks</span>
+        <span class="hero-badge-item">⏳ Waitlist Auto-Promotion</span>
+        <span class="hero-badge-item">📄 PDF &amp; CSV Invoicing</span>
+      </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section id="stats" class="grid stats">
+      <div class="stat">
+        <div class="n">6</div>
+        <div class="l">Total Fleet Vehicles</div>
+      </div>
+      <div class="stat">
+        <div class="n">5</div>
+        <div class="l">Vehicle Categories</div>
+      </div>
+      <div class="stat">
+        <div class="n">₹1,200+</div>
+        <div class="l">Daily Rates from</div>
+      </div>
+      <div class="stat">
+        <div class="n">100%</div>
+        <div class="l">Verified Driver Licences</div>
+      </div>
+    </section>
+
+    <!-- Explore Vehicles Section -->
+    <section id="vehicles">
+      <div class="page-head">
+        <div>
+          <h1>Explore Vehicles</h1>
+          <p class="muted">Live interactive fleet filter. Select dates and click any vehicle to test the booking calculator.</p>
+        </div>
+        <span class="live-status" id="feedStatus">6 vehicles available</span>
+      </div>
+
+      <!-- Filters Card -->
+      <div class="card" style="margin-bottom:1.5rem">
+        <div class="filters">
+          <div class="field" style="flex:2">
+            <label for="fSearch">Search</label>
+            <input type="search" id="fSearch" placeholder="Name, location, model...">
+          </div>
+          <div class="field">
+            <label for="fFuel">Fuel Type</label>
+            <select id="fFuel">
+              <option value="">Any fuel</option>
+              <option value="Petrol">Petrol</option>
+              <option value="Diesel">Diesel</option>
+              <option value="Electric">Electric</option>
+              <option value="CNG">CNG</option>
+              <option value="Hybrid">Hybrid</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="fFrom">Pickup Date</label>
+            <input type="date" id="fFrom">
+          </div>
+          <div class="field">
+            <label for="fTo">Return Date</label>
+            <input type="date" id="fTo">
+          </div>
+          <div class="field">
+            <label for="fSort">Sort by</label>
+            <select id="fSort">
+              <option value="newest">Featured / Newest</option>
+              <option value="price_asc">Price: low → high</option>
+              <option value="price_desc">Price: high → low</option>
+              <option value="name">Name A–Z</option>
+            </select>
+          </div>
+          <button type="button" class="btn btn-ghost" id="fReset">Reset</button>
+        </div>
+
+        <div class="chips-row" style="margin:0">
+          <button type="button" class="chip-filter active" data-cat="">All</button>
+          <button type="button" class="chip-filter" data-cat="Hatchback">Hatchback</button>
+          <button type="button" class="chip-filter" data-cat="Sedan">Sedan</button>
+          <button type="button" class="chip-filter" data-cat="SUV">SUV</button>
+          <button type="button" class="chip-filter" data-cat="Bike">Bike</button>
+          <button type="button" class="chip-filter" data-cat="Van">Van</button>
+        </div>
+      </div>
+
+      <!-- Vehicle Grid -->
+      <div class="vgrid" id="vehicleGrid"></div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" style="margin-top:3rem">
+      <div class="page-head">
+        <div>
+          <h2>System Architecture &amp; Key Features</h2>
+          <p class="muted">Engineered for real-world rental operations with production-grade security standards.</p>
+        </div>
+      </div>
+      <div class="grid cols-3" style="gap:1.25rem">
+        <div class="card">
+          <h3>🏎️ Multi-Category Fleet</h3>
+          <p class="muted small">Flexible booking rules tailored for two-wheelers (MCWG), compact hatchbacks, luxury sedans, and group vans (HMV) with branch allocation.</p>
+        </div>
+        <div class="card">
+          <h3>🔒 Transaction Safety</h3>
+          <p class="muted small">InnoDB row-level locking (<code>SELECT ... FOR UPDATE</code>) eliminates double-booking race conditions across simultaneous booking attempts.</p>
+        </div>
+        <div class="card">
+          <h3>⚡ Smart Waitlist Engine</h3>
+          <p class="muted small">When dates clash, users can opt into a FIFO queue. Cancellations automatically promote and notify next-in-line bookings.</p>
+        </div>
+        <div class="card">
+          <h3>🛡️ Security Hardened</h3>
+          <p class="muted small">CSRF tokens, parameterized PDO queries, role authorization middleware, brute-force lockout, and file upload MIME verification.</p>
+        </div>
+        <div class="card">
+          <h3>📊 Admin Analytics</h3>
+          <p class="muted small">Fleet utilization metrics, booking returns handling, revenue breakdown, and one-click CSV report exports.</p>
+        </div>
+        <div class="card">
+          <h3>💻 Local &amp; Server Ready</h3>
+          <p class="muted small">Full PHP 8 PDO codebase ready for Apache/XAMPP or Docker, with automated database migration and seeding scripts.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer style="background:#0b1f3a;color:#a3b3d1;padding:2.5rem 1rem;margin-top:auto;border-top:1px solid rgba(255,255,255,0.08)">
+    <div style="max-width:1180px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1.5rem">
+      <div>
+        <div class="brand" style="color:#fff;margin-bottom:0.3rem">
+          <span class="brand-mark">RE</span>
+          <span>Rent<b>Ease</b></span>
+        </div>
+        <p class="small muted" style="margin:0">Rental Vehicle Management System • PHP 8 (PDO) &amp; MySQL (InnoDB)</p>
+      </div>
+      <div class="small" style="text-align:right">
+        <p style="margin:0 0 0.4rem">Repository: <a href="https://github.com/Sanjay-N797/RentEase" target="_blank" rel="noopener" style="color:#14b8a6">github.com/Sanjay-N797/RentEase</a></p>
+        <p class="muted" style="margin:0">Released under MIT License</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Vehicle Details & Booking Simulator Modal -->
+  <div class="modal-backdrop" id="bookModal">
+    <div class="modal">
+      <button class="modal-close" onclick="closeBookModal()">&times;</button>
+      <div id="modalContent"></div>
+    </div>
+  </div>
+
+  <!-- Login Preview Modal -->
+  <div class="modal-backdrop" id="loginModal">
+    <div class="modal">
+      <button class="modal-close" onclick="closeLoginModal()">&times;</button>
+      <div class="tab-row">
+        <button class="tab-btn active" id="tabCustomer" onclick="switchLoginTab('customer')">Customer Login</button>
+        <button class="tab-btn" id="tabAdmin" onclick="switchLoginTab('admin')">Admin Login</button>
+      </div>
+
+      <!-- Customer Login Tab -->
+      <div class="tab-content active" id="contentCustomer">
+        <h1>Welcome Back</h1>
+        <p class="muted small">Demo credentials for testing local backend:</p>
+        <div class="alert alert-info">
+          <strong>Email:</strong> arun@example.com<br>
+          <strong>Password:</strong> Customer@123<br>
+          <strong>Licence:</strong> TN3720200012345
+        </div>
+        <div class="field">
+          <label>Email or Licence Number</label>
+          <input type="text" value="arun@example.com" readonly>
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input type="password" value="Customer@123" readonly>
+        </div>
+        <button type="button" class="btn btn-block btn-lg" onclick="alert('In the live PHP backend running on localhost:8000, logging in gives you access to My Bookings, Profile, and Invoices!')">Test Customer Login</button>
+      </div>
+
+      <!-- Admin Login Tab -->
+      <div class="tab-content" id="contentAdmin">
+        <h1>Admin Portal</h1>
+        <p class="muted small">Demo credentials for administrative operations:</p>
+        <div class="alert alert-warning">
+          <strong>Email:</strong> admin@rentease.com<br>
+          <strong>Password:</strong> Admin@123<br>
+          <strong>Scope:</strong> Full Fleet &amp; Booking Management
+        </div>
+        <div class="field">
+          <label>Admin Email</label>
+          <input type="email" value="admin@rentease.com" readonly>
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input type="password" value="Admin@123" readonly>
+        </div>
+        <button type="button" class="btn btn-navy btn-block btn-lg" onclick="alert('In the live PHP backend running on localhost:8000, admin login provides Fleet CRUD, Reports, Return Processing, and CSV Export!')">Test Admin Login</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Authentic vehicle seed data
+    const VEHICLES = [
+      {
+        id: 1,
+        name: 'Maruti Swift VXi',
+        category: 'Hatchback',
+        reg_number: 'TN66AB1234',
+        fuel_type: 'Petrol',
+        transmission: 'Manual',
+        seats: 5,
+        rent_per_day: 1800,
+        pickup_location: 'RS Puram, Coimbatore',
+        branch: 'Coimbatore Central',
+        branch_contact: '+91 90000 11111',
+        available_from: '2026-11-01',
+        available_until: '2027-02-28',
+        min_age: 21,
+        licence_restriction: 'LMV',
+        eligibility: 'Valid LMV licence, minimum 1 year old',
+        cancel_policy: 'Free cancellation any time before pickup (Flexible)',
+        description: 'Compact, fuel-efficient hatchback that is perfect for city driving and weekend getaways. Excellent mileage and easy parking.',
+        icon: '🚗'
+      },
+      {
+        id: 2,
+        name: 'Toyota Innova Crysta',
+        category: 'SUV',
+        reg_number: 'TN66CD5678',
+        fuel_type: 'Diesel',
+        transmission: 'Manual',
+        seats: 7,
+        rent_per_day: 4200,
+        pickup_location: 'Gandhipuram, Coimbatore',
+        branch: 'Coimbatore Central',
+        branch_contact: '+91 90000 11111',
+        available_from: '2026-11-01',
+        available_until: '2027-01-31',
+        min_age: 23,
+        licence_restriction: 'LMV',
+        eligibility: 'Valid LMV licence, minimum 2 years old',
+        cancel_policy: 'Cancel at least 24 hours before pickup (Moderate)',
+        description: 'Spacious 7-seat MPV with powerful diesel engine, dual-zone AC, and generous luggage capacity. Ideal for family trips and long journeys.',
+        icon: '🚙'
+      },
+      {
+        id: 3,
+        name: 'Royal Enfield Classic 350',
+        category: 'Bike',
+        reg_number: 'TN38EF9012',
+        fuel_type: 'Petrol',
+        transmission: 'Manual',
+        seats: 2,
+        rent_per_day: 1200,
+        pickup_location: 'Peelamedu, Coimbatore',
+        branch: 'Peelamedu Branch',
+        branch_contact: '+91 90000 22222',
+        available_from: '2026-11-01',
+        available_until: '2026-12-31',
+        min_age: 20,
+        licence_restriction: 'MCWG, MCWOG',
+        eligibility: 'Valid two-wheeler licence (MCWG)',
+        cancel_policy: 'Cancel at least 72 hours before pickup (Strict)',
+        description: 'Iconic cruiser motorcycle with signature thump. Complimentary sanitized helmets provided. Perfect for hill-station rides to Ooty and Valparai.',
+        icon: '🏍️'
+      },
+      {
+        id: 4,
+        name: 'Hyundai Creta SX',
+        category: 'SUV',
+        reg_number: 'TN66GH3456',
+        fuel_type: 'Petrol',
+        transmission: 'Automatic',
+        seats: 5,
+        rent_per_day: 3500,
+        pickup_location: 'Saibaba Colony, Coimbatore',
+        branch: 'Coimbatore Central',
+        branch_contact: '+91 90000 11111',
+        available_from: '2026-11-04',
+        available_until: '2027-03-31',
+        min_age: 23,
+        licence_restriction: 'LMV',
+        eligibility: 'Valid LMV licence, minimum 2 years old',
+        cancel_policy: 'Free cancellation any time before pickup (Flexible)',
+        description: 'Premium compact SUV with automatic transmission, panoramic sunroof, touchscreen infotainment, and ventilated front seats.',
+        icon: '🚙'
+      },
+      {
+        id: 5,
+        name: 'Tempo Traveller 12-Seater',
+        category: 'Van',
+        reg_number: 'TN66JK7890',
+        fuel_type: 'Diesel',
+        transmission: 'Manual',
+        seats: 12,
+        rent_per_day: 6500,
+        pickup_location: 'Singanallur, Coimbatore',
+        branch: 'Singanallur Branch',
+        branch_contact: '+91 90000 33333',
+        available_from: '2026-11-04',
+        available_until: '2026-12-15',
+        min_age: 25,
+        licence_restriction: 'LMV, HMV',
+        eligibility: 'Valid LMV/HMV licence with 3 years driving experience',
+        cancel_policy: 'Non-cancellable once confirmed (None)',
+        description: '12-seat air-conditioned tourer with reclining pushback seats, individual charging ports, and massive luggage trunk for group tours.',
+        icon: '🚐'
+      },
+      {
+        id: 6,
+        name: 'Honda City ZX',
+        category: 'Sedan',
+        reg_number: 'TN66LM2468',
+        fuel_type: 'Petrol',
+        transmission: 'Automatic',
+        seats: 5,
+        rent_per_day: 3000,
+        pickup_location: 'Race Course, Coimbatore',
+        branch: 'Coimbatore Central',
+        branch_contact: '+91 90000 11111',
+        available_from: '2026-11-01',
+        available_until: '2026-12-25',
+        min_age: 21,
+        licence_restriction: 'LMV',
+        eligibility: 'Valid LMV licence',
+        cancel_policy: 'Cancel at least 24 hours before pickup (Moderate)',
+        description: 'Comfortable premium sedan with automatic CVT transmission, cruise control, leather seats, and generous legroom.',
+        icon: '🚗'
+      }
+    ];
+
+    const inr = n => '₹' + Number(n).toLocaleString('en-IN');
+    const today = new Date().toISOString().split('T')[0];
+    const tomorrow = new Date(Date.now() + 86400000 * 2).toISOString().split('T')[0];
+
+    document.getElementById('fFrom').min = today;
+    document.getElementById('fTo').min = today;
+    document.getElementById('fFrom').value = today;
+    document.getElementById('fTo').value = tomorrow;
+
+    let activeCategory = '';
+
+    function renderGrid() {
+      const q = document.getElementById('fSearch').value.toLowerCase().trim();
+      const fuel = document.getElementById('fFuel').value;
+      const sort = document.getElementById('fSort').value;
+
+      let list = VEHICLES.filter(v => {
+        if (activeCategory && v.category !== activeCategory) return false;
+        if (fuel && v.fuel_type !== fuel) return false;
+        if (q) {
+          const match = (v.name + ' ' + v.category + ' ' + v.pickup_location + ' ' + v.fuel_type).toLowerCase();
+          if (!match.includes(q)) return false;
+        }
+        return true;
+      });
+
+      if (sort === 'price_asc') list.sort((a,b) => a.rent_per_day - b.rent_per_day);
+      else if (sort === 'price_desc') list.sort((a,b) => b.rent_per_day - a.rent_per_day);
+      else if (sort === 'name') list.sort((a,b) => a.name.localeCompare(b.name));
+
+      const grid = document.getElementById('vehicleGrid');
+      const feedStatus = document.getElementById('feedStatus');
+      feedStatus.textContent = list.length + ' vehicle' + (list.length === 1 ? '' : 's') + ' available';
+
+      if (!list.length) {
+        grid.innerHTML = '<div class="empty" style="grid-column:1/-1;text-align:center;padding:3rem">No vehicles match the selected filters. Try resetting search criteria.</div>';
+        return;
+      }
+
+      grid.innerHTML = list.map(v => `
+        <article class="vcard card" style="padding:0;overflow:hidden">
+          <div class="vimg" style="height:170px;background:#f1f5f9;display:grid;place-items:center;position:relative">
+            <div class="ph-icon">${v.icon}</div>
+            <span class="chip chip-teal">${v.category}</span>
+          </div>
+          <div class="vbody" style="padding:1.25rem">
+            <h3 style="margin:0 0 0.3rem">${v.name}</h3>
+            <p class="muted small" style="margin-bottom:0.8rem">📍 ${v.pickup_location}</p>
+            <ul class="specs" style="list-style:none;padding:0;display:flex;gap:0.75rem;margin:0 0 1rem;font-size:0.85rem;color:var(--muted);flex-wrap:wrap">
+              <li>⛽ ${v.fuel_type}</li>
+              <li>⚙️ ${v.transmission}</li>
+              <li>👥 ${v.seats} Seats</li>
+            </ul>
+            <div class="vfoot" style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding-top:0.8rem">
+              <span class="price" style="font-weight:700;font-size:1.25rem;color:var(--navy)">
+                ${inr(v.rent_per_day)}<small style="font-size:0.75rem;font-weight:400;color:var(--muted)">/day</small>
+              </span>
+              <button type="button" class="btn btn-sm" onclick="openBookModal(${v.id})">View &amp; Book</button>
+            </div>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    // Modal controls
+    function openBookModal(id) {
+      const v = VEHICLES.find(x => x.id === id);
+      if (!v) return;
+
+      const pFrom = document.getElementById('fFrom').value || today;
+      const pTo = document.getElementById('fTo').value || tomorrow;
+      const days = Math.max(1, Math.round((new Date(pTo) - new Date(pFrom)) / (1000 * 60 * 60 * 24)));
+      const total = days * v.rent_per_day;
+
+      document.getElementById('modalContent').innerHTML = `
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem">
+          <span style="font-size:2rem">${v.icon}</span>
+          <div>
+            <h2 style="margin:0">${v.name}</h2>
+            <span class="badge b-published">${v.category}</span>
+            <span class="small muted">• ${v.reg_number}</span>
+          </div>
+        </div>
+        <p class="muted small" style="margin-top:0.5rem">${v.description}</p>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin:1rem 0" class="small">
+          <div class="card" style="padding:0.75rem">
+            <strong>Pickup Branch</strong><br>
+            <span class="muted">${v.branch} (${v.pickup_location})</span>
+          </div>
+          <div class="card" style="padding:0.75rem">
+            <strong>Branch Contact</strong><br>
+            <span class="muted">${v.branch_contact}</span>
+          </div>
+          <div class="card" style="padding:0.75rem">
+            <strong>Driver Requirements</strong><br>
+            <span class="muted">Min age: ${v.min_age} yrs • ${v.licence_restriction}</span>
+          </div>
+          <div class="card" style="padding:0.75rem">
+            <strong>Cancellation Policy</strong><br>
+            <span class="muted">${v.cancel_policy}</span>
+          </div>
+        </div>
+
+        <div class="card" style="background:#f8fafc;margin-bottom:1rem">
+          <h3 style="margin-bottom:0.6rem">Rental Duration Calculator</h3>
+          <div style="display:flex;gap:0.75rem;margin-bottom:0.75rem">
+            <div class="field" style="margin:0;flex:1">
+              <label class="small">Pickup (10:00 AM)</label>
+              <input type="date" id="mFrom" value="${pFrom}" onchange="recalculateCost(${v.rent_per_day})">
+            </div>
+            <div class="field" style="margin:0;flex:1">
+              <label class="small">Return (10:00 AM)</label>
+              <input type="date" id="mTo" value="${pTo}" onchange="recalculateCost(${v.rent_per_day})">
+            </div>
+          </div>
+          <div class="summary-box" style="margin:0">
+            <div class="summary-row">
+              <span>Daily Rate:</span>
+              <span>${inr(v.rent_per_day)}</span>
+            </div>
+            <div class="summary-row">
+              <span>Duration:</span>
+              <span id="mDays">${days} Day(s)</span>
+            </div>
+            <div class="summary-row total">
+              <span>Estimated Total Rent:</span>
+              <span id="mTotal" style="color:var(--purple)">${inr(total)}</span>
+            </div>
+          </div>
+        </div>
+
+        <button type="button" class="btn btn-block btn-lg" onclick="simulateBooking('${v.name}', ${v.id})">
+          Confirm Booking (Interactive Demo)
+        </button>
+      `;
+
+      document.getElementById('bookModal').classList.add('open');
+    }
+
+    function recalculateCost(rate) {
+      const from = document.getElementById('mFrom').value;
+      const to = document.getElementById('mTo').value;
+      const days = Math.max(1, Math.round((new Date(to) - new Date(from)) / (1000 * 60 * 60 * 24)));
+      document.getElementById('mDays').textContent = days + ' Day(s)';
+      document.getElementById('mTotal').textContent = inr(days * rate);
+    }
+
+    function simulateBooking(vehicleName, id) {
+      const code = 'RE-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+      document.getElementById('modalContent').innerHTML = `
+        <div style="text-align:center;padding:1.5rem 0">
+          <div style="font-size:3.5rem;margin-bottom:0.8rem">🎉</div>
+          <h2 style="color:var(--ok)">Booking Confirmed!</h2>
+          <p class="muted">Your vehicle reservation has been created in demo mode.</p>
+          <div class="alert alert-success" style="text-align:left;margin:1.5rem 0">
+            <strong>Booking Reference:</strong> ${code}<br>
+            <strong>Vehicle:</strong> ${vehicleName}<br>
+            <strong>Pickup Time:</strong> 10:00 AM at Coimbatore Central<br>
+            <strong>Status:</strong> Confirmed (Pending Return)
+          </div>
+          <p class="small muted">In the full backend on your local server, this generates an invoice entry with automatic PDF/print support and SMS confirmation.</p>
+          <button type="button" class="btn" onclick="closeBookModal()">Done</button>
+        </div>
+      `;
+    }
+
+    function closeBookModal() {
+      document.getElementById('bookModal').classList.remove('open');
+    }
+
+    function openLoginModal(tab) {
+      document.getElementById('loginModal').classList.add('open');
+      switchLoginTab(tab);
+    }
+
+    function closeLoginModal() {
+      document.getElementById('loginModal').classList.remove('open');
+    }
+
+    function switchLoginTab(tab) {
+      document.getElementById('tabCustomer').classList.toggle('active', tab === 'customer');
+      document.getElementById('tabAdmin').classList.toggle('active', tab === 'admin');
+      document.getElementById('contentCustomer').classList.toggle('active', tab === 'customer');
+      document.getElementById('contentAdmin').classList.toggle('active', tab === 'admin');
+    }
+
+    // Event listeners
+    document.getElementById('fSearch').addEventListener('input', renderGrid);
+    document.getElementById('fFuel').addEventListener('change', renderGrid);
+    document.getElementById('fSort').addEventListener('change', renderGrid);
+    document.getElementById('fReset').addEventListener('click', () => {
+      document.getElementById('fSearch').value = '';
+      document.getElementById('fFuel').value = '';
+      document.getElementById('fSort').value = 'newest';
+      activeCategory = '';
+      document.querySelectorAll('.chip-filter').forEach(c => c.classList.toggle('active', c.dataset.cat === ''));
+      renderGrid();
+    });
+
+    document.querySelectorAll('.chip-filter').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.chip-filter').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeCategory = btn.dataset.cat;
+        renderGrid();
+      });
+    });
+
+    document.getElementById('navToggle').addEventListener('click', () => {
+      document.getElementById('mainNav').classList.toggle('open');
+    });
+
+    // Close modals on outside click
+    window.addEventListener('click', e => {
+      if (e.target === document.getElementById('bookModal')) closeBookModal();
+      if (e.target === document.getElementById('loginModal')) closeLoginModal();
+    });
+
+    // Initial render
+    renderGrid();
+  </script>
+</body>
+</html>
